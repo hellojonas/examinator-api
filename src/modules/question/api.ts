@@ -10,13 +10,12 @@ import {
 const router = Router();
 
 router.get("/", allQuestions);
+
+router.post("/", addQuestion); // Admin only
+
 router.get("/:id", getQuestion);
 
 // Admin Area
-router
-  .route("/:id")
-  .delete(removeQuestion)
-  .patch(updateQuestion)
-  .post(addQuestion);
+router.route("/:id").delete(removeQuestion).patch(updateQuestion);
 
 export default router;

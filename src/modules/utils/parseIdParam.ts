@@ -1,5 +1,4 @@
-import { AppError } from "./AppError";
-import { ErrorCode } from "./errorCodes";
+import { AppError, ErrorCode } from "./errors";
 
 export const parseIdParam = (id: number | string) => {
   if (!id || isNaN(+id)) {

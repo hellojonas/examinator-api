@@ -31,6 +31,8 @@ export const removeOne = async (id: number): Promise<void | never> => {
   if (!question) {
     throw new Error("Deletion Failed, no user found");
   }
+
+  await question.remove();
 };
 
 export const updateOne = async (
