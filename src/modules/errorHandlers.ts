@@ -1,20 +1,17 @@
 import { ErrorRequestHandler, Handler } from "express";
+import { ValidationError } from "yup";
 import { AppError, appErrorMessages, ErrorCode } from "./utils/errors";
 
 export const globalErrorHanlder: ErrorRequestHandler = (err, _, res, _2) => {
   let status = 500;
   const _err = err as AppError;
 
-  const code = _err.code ? _err.code : ErrorCode.INTERNAL_ERROR;
-  // console.log(ErrorCode.INTERNAL_ERROR);
+  let code = _err.code ? _err.code : ErrorCode.INTERNAL_ERROR;
 
-  const message =
+  let message =
     code === ErrorCode.INTERNAL_ERROR
       ? appErrorMessages[ErrorCode.INTERNAL_ERROR]
       : _err.message;
-
-  // const temp = new DuplicatedKey();
-  // console.log(temp instanceof DuplicatedKey);
 
   if (err.name === "RecordNotFound") {
     status = 404;
@@ -25,6 +22,10 @@ export const globalErrorHanlder: ErrorRequestHandler = (err, _, res, _2) => {
     err.name === "DuplicatedKey"
   ) {
     status = 400;
+  } else if (err instanceof ValidationError) {
+    status = 400;
+    message = err.message;
+    code = ErrorCode.INVALID_MODEL_DATA;
   }
 
   const resError: any = {

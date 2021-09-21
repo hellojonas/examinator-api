@@ -3,6 +3,7 @@ import { DeepPartial, FindManyOptions, getRepository, In } from "typeorm";
 import {
   AppError,
   ErrorCode,
+  InvalidModelData,
   isPgError,
   parsePgError,
   RecordNotFound,
@@ -10,6 +11,7 @@ import {
 import Question, { Category } from "./Question.entity";
 import { IQuestionInput } from "../../types";
 import { answerServices } from "../answers";
+import { questionInputSchema, questionUpdateSchema } from "./validation";
 
 export const findAll = async (
   options?: FindManyOptions
@@ -44,6 +46,9 @@ export const addOne = async (
   data: IQuestionInput
 ): Promise<Question | never> => {
   const repository = getRepository(Question);
+
+  await questionInputSchema.validate(data);
+
   try {
     const answers = await answerServices.getAll({
       where: { id: In(data.answers) },
@@ -62,10 +67,7 @@ export const addOne = async (
   } catch (error) {
     if (isPgError(error)) {
       throw parsePgError(error as DatabaseError);
-    } else if ((<AppError>error).name === "RecordNotFound") {
-      throw error;
     }
-
     const err = new AppError(ErrorCode.INTERNAL_ERROR);
     err.cause = error;
     throw err;
@@ -90,6 +92,11 @@ export const updateOne = async (
   id: number,
   partialData: DeepPartial<Question>
 ): Promise<Question | null | never> => {
+  if (Object.keys(partialData).length === 0) {
+    throw new InvalidModelData("Empty update body data");
+  }
+  await questionUpdateSchema.validate(partialData);
+
   const repository = getRepository(Question);
 
   try {

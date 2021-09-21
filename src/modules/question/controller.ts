@@ -1,32 +1,26 @@
 import { Handler } from "express";
 import { IQuestionInput } from "../../types";
-import {
-  isValidOrdering,
-  isValidRange,
-  paginate,
-  parseIdParam,
-  tryCatch,
-} from "../utils";
+import { isValidOrdering, paginate, parseIdParam, tryCatch } from "../utils";
 import { InvalidModelData } from "../utils/errors";
-import Question, { Category } from "./Question.entity";
+import Question from "./Question.entity";
 import * as questionServices from "./services";
 
-export const addQuestion: Handler = tryCatch(async (req, res, next) => {
+export const addQuestion: Handler = tryCatch(async (req, res, _) => {
   const { value, answers, correctAnswer, picture, category } =
     req.body as IQuestionInput;
 
-  if (
-    !value ||
-    !answers ||
-    answers.length === 0 ||
-    !correctAnswer ||
-    !picture ||
-    !category
-  ) {
-    throw new InvalidModelData(
-      "One or more fields are empty. {value, answers, correctAnswer, picture, category} cannot be empty"
-    );
-  }
+  // if (
+  //   !value ||
+  //   !answers ||
+  //   answers.length === 0 ||
+  //   !correctAnswer ||
+  //   !picture ||
+  //   !category
+  // ) {
+  //   throw new InvalidModelData(
+  //     "One or more fields are empty. {value, answers, correctAnswer, picture, category} cannot be empty"
+  //   );
+  // }
 
   const newQuestion = await questionServices.addOne({
     value,
@@ -73,7 +67,7 @@ export const getQuestion: Handler = tryCatch(async (req, res, next) => {
   }
 });
 
-export const updateQuestion: Handler = tryCatch(async (req, res, next) => {
+export const updateQuestion: Handler = tryCatch(async (req, res, _) => {
   const id = parseIdParam(req.params.id);
 
   const updatedQuestion = await questionServices.updateOne(
@@ -84,7 +78,7 @@ export const updateQuestion: Handler = tryCatch(async (req, res, next) => {
   res.json({ question: updatedQuestion });
 });
 
-export const removeQuestion: Handler = tryCatch(async (req, res, next) => {
+export const removeQuestion: Handler = tryCatch(async (req, res, _) => {
   const id = parseIdParam(req.params.id);
 
   await questionServices.removeOne(+id);

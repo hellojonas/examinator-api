@@ -15,7 +15,7 @@ export async function addAnswer(data: IAnswer): Promise<Answer | never> {
   const { value } = data;
 
   if (!value) {
-    throw new InvalidModelData("Answer value is empty.");
+    throw new InvalidModelData("Answer 'value' is empty.");
   }
 
   try {
@@ -56,6 +56,11 @@ export async function update(
 ): Promise<Answer | null | never> {
   try {
     await getOne(id);
+
+    if (!data.value || data.value.length === 0) {
+      throw new InvalidModelData("'value' has invalid value");
+    }
+
     const res = await getRepository(Answer).update({ id }, { ...data, id });
 
     if (res.affected === 0) {
