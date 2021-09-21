@@ -1,23 +1,41 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToMany,
+  JoinTable,
+  ManyToOne,
+  JoinColumn,
+} from "typeorm";
+import { Answer } from "../answers";
+
+export enum Category {
+  LAW = "law",
+  SIGNS = "signs",
+}
 
 @Entity()
-export default class Question extends BaseEntity {
+export default class Question {
   @PrimaryGeneratedColumn()
-  id?: number;
+  id: number;
+
+  @Column({ unique: true })
+  value: string;
 
   @Column()
-  value?: string;
+  picture: string;
 
-  @Column()
-  picture?: string;
+  @Column({ type: "enum", enum: Category, default: Category.SIGNS })
+  category: Category;
 
-  @Column()
-  category?: "LAW" | "SIGNS";
+  @ManyToMany(() => Answer, { eager: true, nullable: false })
+  @JoinTable()
+  answers: Answer[];
 
-  // TODO: Add relations to answers and correct answers field
-  @Column("int", { array: true })
-  answers?: number[];
-
-  @Column()
-  correctAnswer?: number;
+  @ManyToOne(() => Answer, (question) => question.questions, {
+    eager: true,
+    nullable: false,
+  })
+  @JoinColumn()
+  correctAnswer: Answer;
 }

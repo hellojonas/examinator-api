@@ -3,11 +3,20 @@ import { ErrorCode, appErrorMessages } from "./errorCodes";
 export class AppError extends Error {
   code: ErrorCode;
   internal: boolean;
+  _cause: any;
 
   constructor(code: ErrorCode, message?: string) {
     super(message || appErrorMessages[code]);
     this.code = code;
     this.name = "AppError";
+  }
+
+  set cause(cause: any) {
+    this._cause = cause;
+  }
+
+  get cause() {
+    return this.cause;
   }
 }
 

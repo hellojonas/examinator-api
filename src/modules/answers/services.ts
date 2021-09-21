@@ -1,5 +1,5 @@
 import { IAnswer } from "src/types";
-import { DeepPartial, getRepository } from "typeorm";
+import { DeepPartial, FindManyOptions, getRepository } from "typeorm";
 import Answer from "./Answer.entity";
 import {
   AppError,
@@ -73,9 +73,11 @@ export async function update(
   }
 }
 
-export async function getAll(): Promise<Answer[]> {
+export async function getAll(
+  option?: FindManyOptions<Answer>
+): Promise<Answer[]> {
   try {
-    return getRepository(Answer).find();
+    return getRepository(Answer).find(option);
   } catch (error) {
     throw new AppError(ErrorCode.INTERNAL_ERROR);
   }

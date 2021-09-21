@@ -1,5 +1,5 @@
 import { IAnswer } from "src/types";
-import { tryCatch } from "../utils";
+import { isValidOrdering, paginate, tryCatch } from "../utils";
 import Answer from "./Answer.entity";
 import * as answerServices from "./services";
 import { parseIdParam } from "../utils";
@@ -26,8 +26,22 @@ export const getAnswer = tryCatch(async (req, res) => {
   res.json({ answer });
 });
 
-export const getAll = tryCatch(async (_, res) => {
-  const answers = await answerServices.getAll();
+export const getAll = tryCatch(async (req, res) => {
+  const { limit, skip, order } = req.query as {
+    limit: string;
+    skip: string;
+    order: string;
+  };
+  const range = paginate({ limit, skip });
+  const answers = await answerServices.getAll({
+    skip: range.skip,
+    take: range.limit,
+    order: {
+      id: isValidOrdering(order)
+        ? (order.toUpperCase() as "ASC" | "DESC")
+        : "DESC",
+    },
+  });
   const total = await answerServices.count();
 
   res.json({ total, answers });

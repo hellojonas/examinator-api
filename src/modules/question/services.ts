@@ -1,58 +1,111 @@
-import Question from "./Question.entity";
+import { DatabaseError } from "pg";
+import { DeepPartial, FindManyOptions, getRepository, In } from "typeorm";
+import {
+  AppError,
+  ErrorCode,
+  isPgError,
+  parsePgError,
+  RecordNotFound,
+} from "../utils/errors";
+import Question, { Category } from "./Question.entity";
+import { IQuestionInput } from "../../types";
+import { answerServices } from "../answers";
 
-export const findAll = async (): Promise<Question[]> => {
-  return await Question.find();
-};
-
-export const findOne = async (id: number): Promise<Question | null> => {
-  const question = await Question.findOne(id);
-  return question || null;
-};
-
-export const addOne = async (data: Question): Promise<Question | never> => {
-  const question = Question.create(data);
-
-  let newQuestion: Question;
-
+export const findAll = async (
+  options?: FindManyOptions
+): Promise<Question[]> => {
   try {
-    newQuestion = await question.save();
-  } catch (err) {
-    // create meaning full error
-    console.log(err);
+    return await getRepository(Question).find(options);
+  } catch (_) {
+    throw new AppError(ErrorCode.INTERNAL_ERROR);
+  }
+};
+
+export const findOne = async (id: number): Promise<Question | never> => {
+  try {
+    const question = await getRepository(Question).findOne(id);
+    if (!question) {
+      throw new RecordNotFound("Question Not Found");
+    }
+    return question;
+  } catch (error) {
+    // const err = buildError(error);
+    // throw err;
+    if ((<any>error).name === "RecordNotFound") {
+      throw error;
+    }
+    const err = new AppError(ErrorCode.INTERNAL_ERROR);
+    err.cause = error;
     throw err;
   }
-
-  return newQuestion;
 };
 
-export const removeOne = async (id: number): Promise<void | never> => {
-  const question = await Question.findOne(id);
+export const addOne = async (
+  data: IQuestionInput
+): Promise<Question | never> => {
+  const repository = getRepository(Question);
+  try {
+    const answers = await answerServices.getAll({
+      where: { id: In(data.answers) },
+    });
+    const correctAnswer = await answerServices.getOne(data.correctAnswer);
+    const category = data.category === "law" ? Category.LAW : Category.SIGNS;
+    const question = repository.create({
+      ...data,
+      answers,
+      correctAnswer,
+      category,
+    });
+    const newQuestion = await repository.save(question);
 
-  if (!question) {
-    throw new Error("Deletion Failed, no user found");
+    return newQuestion;
+  } catch (error) {
+    if (isPgError(error)) {
+      throw parsePgError(error as DatabaseError);
+    } else if ((<AppError>error).name === "RecordNotFound") {
+      throw error;
+    }
+
+    const err = new AppError(ErrorCode.INTERNAL_ERROR);
+    err.cause = error;
+    throw err;
   }
+};
 
-  await question.remove();
+export const removeOne = async (id: number): Promise<Question | never> => {
+  const repository = getRepository(Question);
+  const question = await findOne(id);
+  try {
+    await repository.remove(question);
+    return question;
+  } catch (error) {
+    if ((<any>error).name === "RecordNotFound") {
+      throw error;
+    }
+    throw new AppError(ErrorCode.INTERNAL_ERROR);
+  }
 };
 
 export const updateOne = async (
   id: number,
-  partialData: Question
-): Promise<Question | never> => {
-  try {
-    const question = await Question.findOne(id);
+  partialData: DeepPartial<Question>
+): Promise<Question | null | never> => {
+  const repository = getRepository(Question);
 
-    if (!question) {
-      throw new Error("Update Failed, no user found");
+  try {
+    const res = await repository.update(id, partialData);
+
+    if (res.affected === 0) {
+      return null;
     }
 
-    const res = await Question.update(id, partialData);
-  } catch (err) {
-    console.log(err);
-    throw err;
+    return repository.create({ ...partialData, id });
+  } catch (error) {
+    if ((<any>error).name === "RecordNotFound") {
+      throw error;
+    }
+    throw new AppError(ErrorCode.INTERNAL_ERROR);
   }
-
-  return Question.create({ ...partialData, id });
 };
 
-export const totalQuestions = async () => await Question.count();
+export const totalQuestions = async () => await getRepository(Question).count();

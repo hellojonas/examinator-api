@@ -1,6 +1,17 @@
-import { Answer } from "src/modules/answers";
-import { DeepPartial } from "typeorm";
+// import { Answer } from "../modules/answers";
+// import { Category } from "../modules/question";
+// import { DeepPartial } from "typeorm";
 
-export interface IAnswer extends DeepPartial<Answer> {
+// export interface IAnswerInput {
+export interface IAnswer {
   value: string;
+}
+
+export interface IQuestionInput {
+  value: string;
+  answers: number[];
+  // category: Category;
+  category: "law" | "signs";
+  correctAnswer: number;
+  picture: string;
 }

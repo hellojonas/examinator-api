@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Question } from "../question";
 
 @Entity()
 export default class Answer {
@@ -7,4 +8,7 @@ export default class Answer {
 
   @Column({ unique: true })
   value: string;
+
+  @ManyToMany(() => Question)
+  questions: Question[];
 }

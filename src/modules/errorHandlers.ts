@@ -1,10 +1,20 @@
 import { ErrorRequestHandler, Handler } from "express";
-import { AppError } from "./utils/errors";
+import { AppError, appErrorMessages, ErrorCode } from "./utils/errors";
 
 export const globalErrorHanlder: ErrorRequestHandler = (err, _, res, _2) => {
   let status = 500;
-  let message = err.message || "Internal Server Error";
-  const { code } = err as AppError;
+  const _err = err as AppError;
+
+  const code = _err.code ? _err.code : ErrorCode.INTERNAL_ERROR;
+  // console.log(ErrorCode.INTERNAL_ERROR);
+
+  const message =
+    code === ErrorCode.INTERNAL_ERROR
+      ? appErrorMessages[ErrorCode.INTERNAL_ERROR]
+      : _err.message;
+
+  // const temp = new DuplicatedKey();
+  // console.log(temp instanceof DuplicatedKey);
 
   if (err.name === "RecordNotFound") {
     status = 404;
@@ -17,10 +27,14 @@ export const globalErrorHanlder: ErrorRequestHandler = (err, _, res, _2) => {
     status = 400;
   }
 
-  const resError: any = { message, code };
+  const resError: any = {
+    message,
+    code,
+  };
 
   if (process.env.NODE_ENV === "development") {
     resError.error = err;
+    resError.stack = err.stack;
   }
 
   res.status(status).json(resError);

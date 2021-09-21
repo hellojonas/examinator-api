@@ -10,14 +10,15 @@ export function parsePgError(error: DatabaseError): ModelError | undefined {
   if (code === "23505") {
     const message = `${field} already exists`;
     return new DuplicatedKey(message);
-  } else if (code === "") {
-    const message = `${field} has invalid value`;
+  } else if (code === "22P02") {
+    // const message = `${field} has invalid value`;
+    const message = "One or more values has invalid text represntation";
     return new InvalidModelData(message);
   }
 }
 
 export function isPgError(error: any): boolean {
-  const { code, detail, length, severity } = error as DatabaseError;
+  const { code, length, severity } = error as DatabaseError;
 
-  return !!code && !!detail && !!length && !!severity;
+  return !!code && !!length && !!severity;
 }
