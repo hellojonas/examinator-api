@@ -1,26 +1,12 @@
 import { Handler } from "express";
 import { IQuestionInput } from "../../types";
 import { isValidOrdering, paginate, parseIdParam, tryCatch } from "../utils";
-import { InvalidModelData } from "../utils/errors";
 import Question from "./Question.entity";
 import * as questionServices from "./services";
 
 export const addQuestion: Handler = tryCatch(async (req, res, _) => {
   const { value, answers, correctAnswer, picture, category } =
     req.body as IQuestionInput;
-
-  // if (
-  //   !value ||
-  //   !answers ||
-  //   answers.length === 0 ||
-  //   !correctAnswer ||
-  //   !picture ||
-  //   !category
-  // ) {
-  //   throw new InvalidModelData(
-  //     "One or more fields are empty. {value, answers, correctAnswer, picture, category} cannot be empty"
-  //   );
-  // }
 
   const newQuestion = await questionServices.addOne({
     value,
@@ -34,25 +20,30 @@ export const addQuestion: Handler = tryCatch(async (req, res, _) => {
 });
 
 export const allQuestions: Handler = async (req, res) => {
-  const { limit, skip, order } = req.query as {
+  const { limit, skip, order, q } = req.query as {
     limit: string;
     skip: string;
     order: string;
+    q: string;
   };
-  const range = paginate({ limit, skip });
-
-  const questions = await questionServices.findAll({
+  const range = paginate({ take: limit, skip });
+  const options = {
     skip: range.skip,
-    take: range.limit,
+    take: range.take,
     order: {
       id: isValidOrdering(order)
         ? (order.toUpperCase() as "ASC" | "DESC")
         : "DESC",
     },
-  });
-  const count = await questionServices.totalQuestions();
+  };
+  const findRes = q
+    ? await questionServices.search(q, {
+        skip: options.skip,
+        take: options.take,
+      })
+    : await questionServices.findAll(options);
 
-  res.json({ total: count, returned: limit, questions: questions });
+  res.json({ ...findRes });
 };
 
 export const getQuestion: Handler = tryCatch(async (req, res, next) => {

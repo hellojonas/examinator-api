@@ -1,5 +1,5 @@
-import { IAnswer } from "src/types";
-import { DeepPartial, FindManyOptions, getRepository } from "typeorm";
+import { FindManyResult, IAnswer } from "src/types";
+import { DeepPartial, FindManyOptions, getRepository, Like } from "typeorm";
 import Answer from "./Answer.entity";
 import {
   AppError,
@@ -80,12 +80,42 @@ export async function update(
 
 export async function getAll(
   option?: FindManyOptions<Answer>
-): Promise<Answer[]> {
+): Promise<FindManyResult<Answer> | never> {
   try {
-    return getRepository(Answer).find(option);
+    const answers = await getRepository(Answer).find(option);
+    const total = await count();
+    return {
+      data: answers,
+      total,
+    };
   } catch (error) {
     throw new AppError(ErrorCode.INTERNAL_ERROR);
   }
+}
+
+export async function search(
+  text: string,
+  paginate?: { skip?: number; take?: number }
+): Promise<FindManyResult<Answer> | never> {
+  if (!text || text.length === 0) {
+    throw new AppError(
+      ErrorCode.INVALID_MODEL_DATA,
+      "Serch text must be at least 3 characters long"
+    );
+  }
+  const skip = paginate?.skip || 0;
+  const take = paginate?.take || 15;
+  const repository = getRepository(Answer);
+
+  const answers = await repository.find({
+    where: { value: Like(`%${text}%`) },
+    skip,
+    take,
+  });
+  const total = await repository.count({
+    where: { value: Like(`%${text}%`) },
+  });
+  return { data: answers, total };
 }
 
 export async function deleteOne(id: number): Promise<Answer | never> {
@@ -101,13 +131,12 @@ export async function deleteOne(id: number): Promise<Answer | never> {
   }
 }
 
-export async function count(): Promise<number> {
+export async function count(
+  options?: FindManyOptions<Answer>
+): Promise<number> {
   try {
-    return await getRepository(Answer).count();
+    return await getRepository(Answer).count(options);
   } catch (error) {
-    if ((<any>error).name === "InvalidIDparameter") {
-      throw error;
-    }
     throw new AppError(ErrorCode.INTERNAL_ERROR);
   }
 }

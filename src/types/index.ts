@@ -9,3 +9,8 @@ export interface IQuestionInput {
   correctAnswer: number;
   picture: string;
 }
+
+export interface FindManyResult<T> {
+  data: T[];
+  total: number;
+}

@@ -3,7 +3,7 @@ import { isValidOrdering, paginate, tryCatch } from "../utils";
 import Answer from "./Answer.entity";
 import * as answerServices from "./services";
 import { parseIdParam } from "../utils";
-import { DeepPartial } from "typeorm";
+import { DeepPartial, Like } from "typeorm";
 
 export const addAnswer = tryCatch(async (req, res) => {
   const { value } = <IAnswer>req.body;
@@ -27,24 +27,27 @@ export const getAnswer = tryCatch(async (req, res) => {
 });
 
 export const getAll = tryCatch(async (req, res) => {
-  const { limit, skip, order } = req.query as {
+  const { limit, skip, order, q } = req.query as {
     limit: string;
     skip: string;
     order: string;
+    q: string;
   };
-  const range = paginate({ limit, skip });
-  const answers = await answerServices.getAll({
+  const range = paginate({ take: limit, skip });
+  const options = {
     skip: range.skip,
-    take: range.limit,
+    take: range.take,
     order: {
       id: isValidOrdering(order)
         ? (order.toUpperCase() as "ASC" | "DESC")
         : "DESC",
     },
-  });
-  const total = await answerServices.count();
+  };
+  const findRes = q
+    ? await answerServices.search(q, { skip: options.skip, take: options.take })
+    : await answerServices.getAll(options);
 
-  res.json({ total, answers });
+  res.json({ ...findRes });
 });
 
 export const updateAnswer = tryCatch(async (req, res) => {

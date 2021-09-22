@@ -1,5 +1,5 @@
 import { DatabaseError } from "pg";
-import { DeepPartial, FindManyOptions, getRepository, In } from "typeorm";
+import { DeepPartial, FindManyOptions, getRepository, In, Like } from "typeorm";
 import {
   AppError,
   ErrorCode,
@@ -9,19 +9,50 @@ import {
   RecordNotFound,
 } from "../utils/errors";
 import Question, { Category } from "./Question.entity";
-import { IQuestionInput } from "../../types";
+import { FindManyResult, IQuestionInput } from "../../types";
 import { answerServices } from "../answers";
 import { questionInputSchema, questionUpdateSchema } from "./validation";
 
 export const findAll = async (
   options?: FindManyOptions
-): Promise<Question[]> => {
+): Promise<FindManyResult<Question> | never> => {
   try {
-    return await getRepository(Question).find(options);
+    const questions = await getRepository(Question).find(options);
+    const total = await count();
+
+    return {
+      data: questions,
+      total,
+    };
   } catch (_) {
     throw new AppError(ErrorCode.INTERNAL_ERROR);
   }
 };
+
+export async function search(
+  text: string,
+  paginate?: { skip?: number; take?: number }
+): Promise<FindManyResult<Question> | never> {
+  if (!text || text.length === 0) {
+    throw new AppError(
+      ErrorCode.INVALID_MODEL_DATA,
+      "Serch text must be at least 3 characters long"
+    );
+  }
+  const skip = paginate?.skip || 0;
+  const take = paginate?.take || 15;
+
+  const questions = await getRepository(Question).find({
+    where: { value: Like(`%${text}%`) },
+    skip,
+    take,
+  });
+  const total = await count({
+    where: { value: Like(`%${text}%`) },
+  });
+
+  return { data: questions, total };
+}
 
 export const findOne = async (id: number): Promise<Question | never> => {
   try {
@@ -31,8 +62,6 @@ export const findOne = async (id: number): Promise<Question | never> => {
     }
     return question;
   } catch (error) {
-    // const err = buildError(error);
-    // throw err;
     if ((<any>error).name === "RecordNotFound") {
       throw error;
     }
@@ -50,7 +79,7 @@ export const addOne = async (
   await questionInputSchema.validate(data);
 
   try {
-    const answers = await answerServices.getAll({
+    const { data: answers } = await answerServices.getAll({
       where: { id: In(data.answers) },
     });
     const correctAnswer = await answerServices.getOne(data.correctAnswer);
@@ -115,4 +144,10 @@ export const updateOne = async (
   }
 };
 
-export const totalQuestions = async () => await getRepository(Question).count();
+export const count = async (options?: FindManyOptions<Question>) => {
+  try {
+    return await getRepository(Question).count(options);
+  } catch (error) {
+    throw new AppError(ErrorCode.INTERNAL_ERROR);
+  }
+};

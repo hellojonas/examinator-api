@@ -7,14 +7,14 @@ export function isValidRange(range: any) {
 }
 
 export function paginate({
-  limit,
+  take,
   skip,
 }: {
-  limit?: string | number;
+  take?: string | number;
   skip?: string | number;
 }) {
   return {
-    limit: limit && isValidRange(limit) ? +limit : DEFAULT_LIMIT,
+    take: take && isValidRange(take) ? +take : DEFAULT_LIMIT,
     skip: skip && isValidRange(skip) ? +skip : 0,
   };
 }
