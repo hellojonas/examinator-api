@@ -43,9 +43,13 @@ export const getAll = tryCatch(async (req, res) => {
         : "DESC",
     },
   };
-  const { total, data: answers } = q
-    ? await answerServices.search(q, { skip: options.skip, take: options.take })
-    : await answerServices.getAll(options);
+  const { total, data: answers } =
+    q && q.length > 0
+      ? await answerServices.search(q, {
+          skip: options.skip,
+          take: options.take,
+        })
+      : await answerServices.getAll(options);
 
   res.json({ answers, total });
 });

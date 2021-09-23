@@ -1,5 +1,5 @@
 import { FindManyResult, IAnswer } from "src/types";
-import { DeepPartial, FindManyOptions, getRepository, Like } from "typeorm";
+import { DeepPartial, FindManyOptions, getRepository, ILike } from "typeorm";
 import Answer from "./Answer.entity";
 import {
   AppError,
@@ -108,12 +108,12 @@ export async function search(
   const repository = getRepository(Answer);
 
   const answers = await repository.find({
-    where: { value: Like(`%${text}%`) },
+    where: { value: ILike(`%${text}%`) },
     skip,
     take,
   });
   const total = await repository.count({
-    where: { value: Like(`%${text}%`) },
+    where: { value: ILike(`%${text}%`) },
   });
   return { data: answers, total };
 }

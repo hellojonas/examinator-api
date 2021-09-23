@@ -1,5 +1,11 @@
 import { DatabaseError } from "pg";
-import { DeepPartial, FindManyOptions, getRepository, In, Like } from "typeorm";
+import {
+  DeepPartial,
+  FindManyOptions,
+  getRepository,
+  In,
+  ILike,
+} from "typeorm";
 import {
   AppError,
   ErrorCode,
@@ -43,12 +49,12 @@ export async function search(
   const take = paginate?.take || 15;
 
   const questions = await getRepository(Question).find({
-    where: { value: Like(`%${text}%`) },
+    where: { value: ILike(`%${text}%`) },
     skip,
     take,
   });
   const total = await count({
-    where: { value: Like(`%${text}%`) },
+    where: { value: ILike(`%${text}%`) },
   });
 
   return { data: questions, total };

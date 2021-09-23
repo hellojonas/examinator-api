@@ -36,12 +36,13 @@ export const allQuestions: Handler = async (req, res) => {
         : "DESC",
     },
   };
-  const { total, data: questions } = q
-    ? await questionServices.search(q, {
-        skip: options.skip,
-        take: options.take,
-      })
-    : await questionServices.findAll(options);
+  const { total, data: questions } =
+    q && q.length > 0
+      ? await questionServices.search(q, {
+          skip: options.skip,
+          take: options.take,
+        })
+      : await questionServices.findAll(options);
 
   res.json({ total, questions });
 };
