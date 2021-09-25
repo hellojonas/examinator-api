@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Question } from "../question";
 
 @Entity()
@@ -10,5 +16,6 @@ export default class Answer {
   value: string;
 
   @ManyToMany(() => Question)
+  @JoinTable()
   questions: Question[];
 }

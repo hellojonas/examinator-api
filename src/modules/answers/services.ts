@@ -121,9 +121,11 @@ export async function search(
 export async function deleteOne(id: number): Promise<Answer | never> {
   try {
     const answer = await getOne(id);
+    console.log(answer);
     await getRepository(Answer).remove(answer);
     return answer;
   } catch (error) {
+    console.log(error);
     if ((<any>error).name === "InvalidIDparameter") {
       throw error;
     }
