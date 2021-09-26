@@ -5,8 +5,11 @@ dotenv.config();
 
 import app from "./modules/app";
 import { createConnection } from "typeorm";
+import { loadPublicDir } from "./modules/upload";
 
 const PORT = process.env.PORT || 4000;
+
+loadPublicDir();
 
 (async () => {
   // connection code

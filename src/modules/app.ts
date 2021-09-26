@@ -6,6 +6,7 @@ import { questionApi } from "./question";
 import { answerApi } from "./answers";
 import path from "path";
 import { globalErrorHanlder, notFound } from "./errorHandlers";
+import { uploadApi } from "./upload";
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(morgan("dev"));
 
 app.use("/api/v1/questions", questionApi);
 app.use("/api/v1/answers", answerApi);
+app.use("/api/v1/upload", uploadApi);
 app.use(globalErrorHanlder);
 app.use("*", notFound);
 

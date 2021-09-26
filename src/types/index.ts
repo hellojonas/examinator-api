@@ -14,3 +14,9 @@ export interface FindManyResult<T> {
   data: T[];
   total: number;
 }
+
+export interface IUploadInput {
+  filename: string;
+}
+
+export type MulterFile = Express.Multer.File;
