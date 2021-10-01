@@ -22,9 +22,6 @@ export default class Question {
   @Column({ unique: true })
   value: string;
 
-  @Column()
-  picture: string;
-
   @Column({ type: "enum", enum: Category, default: Category.SIGNS })
   category: Category;
 
@@ -38,4 +35,7 @@ export default class Question {
   })
   @JoinColumn()
   correctAnswer: Answer;
+
+  @Column({ nullable: true })
+  picture: string;
 }

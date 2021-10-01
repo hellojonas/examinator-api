@@ -7,7 +7,7 @@ export interface IQuestionInput {
   answers: number[];
   category: "law" | "signs";
   correctAnswer: number;
-  picture: string;
+  picture?: string;
 }
 
 export interface FindManyResult<T> {

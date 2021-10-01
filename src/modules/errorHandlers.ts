@@ -6,6 +6,8 @@ export const globalErrorHanlder: ErrorRequestHandler = (err, _, res, _2) => {
   let status = 500;
   const _err = err as AppError;
 
+  console.log(err);
+
   let code = _err.code ? _err.code : ErrorCode.INTERNAL_ERROR;
 
   let message =

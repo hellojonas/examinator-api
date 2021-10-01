@@ -3,6 +3,7 @@ import { tryCatch, parseIdParam } from "../utils";
 import path from "path";
 // import { ErrorCode, AppError } from "../utils/errors";
 import * as uploadServices from "./services";
+import { AppError, ErrorCode } from "../utils/errors";
 
 export const media: Handler = tryCatch(async (req, res) => {
   const { filename } = req.params;
@@ -32,6 +33,9 @@ export const medias: Handler = tryCatch(async (req, res) => {
 
 export const uploadMedia: Handler = tryCatch(async (req, res) => {
   const { file } = req;
+  if (!file) {
+    throw new AppError(ErrorCode.INVALID_MODEL_DATA, "No File to upload");
+  }
   const uploaded = await uploadServices.saveMedia(file!);
 
   res.status(201).json({
