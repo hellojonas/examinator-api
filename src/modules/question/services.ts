@@ -164,8 +164,7 @@ export const random = async (limit?: number) => {
   const questions = await getRepository(Question)
     .createQueryBuilder("question")
     .leftJoinAndSelect("question.answers", "answer")
-    .orderBy("RANDOM()")
-    .limit(limit || 25)
+    .leftJoinAndSelect("question.correctAnswer", "answers")
     .getMany();
 
   return questions;
