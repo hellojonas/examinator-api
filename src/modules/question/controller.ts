@@ -1,6 +1,8 @@
 import { Handler } from "express";
+import { ValidationError } from "yup";
 import { IQuestionInput } from "../../types";
 import { isValidOrdering, paginate, parseIdParam, tryCatch } from "../utils";
+import { AppError } from "../utils/errors";
 import Question from "./Question.entity";
 import * as questionServices from "./services";
 
@@ -76,4 +78,18 @@ export const removeQuestion: Handler = tryCatch(async (req, res, _) => {
   await questionServices.removeOne(+id);
 
   res.status(210).json(null);
+});
+
+export const random: Handler = tryCatch(async (req, res, _) => {
+  let { limit } = req.query;
+
+  if (limit && isNaN(+limit)) {
+    throw new ValidationError("Invalid limit parameter");
+  } else if (!limit) {
+    limit = "25";
+  }
+
+  const questions = await questionServices.random(+limit);
+
+  res.json({ questions });
 });

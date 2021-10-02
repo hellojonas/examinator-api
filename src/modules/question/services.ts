@@ -5,6 +5,8 @@ import {
   getRepository,
   In,
   ILike,
+  getConnection,
+  createQueryBuilder,
 } from "typeorm";
 import {
   AppError,
@@ -16,7 +18,7 @@ import {
 } from "../utils/errors";
 import Question, { Category } from "./Question.entity";
 import { FindManyResult, IQuestionInput } from "../../types";
-import { answerServices } from "../answers";
+import { Answer, answerServices } from "../answers";
 import { questionInputSchema, questionUpdateSchema } from "./validation";
 
 export const findAll = async (
@@ -156,4 +158,15 @@ export const count = async (options?: FindManyOptions<Question>) => {
   } catch (error) {
     throw new AppError(ErrorCode.INTERNAL_ERROR);
   }
+};
+
+export const random = async (limit?: number) => {
+  const questions = await getRepository(Question)
+    .createQueryBuilder("question")
+    .leftJoinAndSelect("question.answers", "answer")
+    .orderBy("RANDOM()")
+    .limit(limit || 25)
+    .getMany();
+
+  return questions;
 };
