@@ -1,7 +1,6 @@
 import { Handler } from "express";
 import { tryCatch, parseIdParam } from "../utils";
 import path from "path";
-// import { ErrorCode, AppError } from "../utils/errors";
 import * as uploadServices from "./services";
 import { AppError, ErrorCode } from "../utils/errors";
 
@@ -10,7 +9,6 @@ export const media: Handler = tryCatch(async (req, res) => {
 
   const upload = await uploadServices.findMedia(filename);
 
-  // res.json({ media: upload });
   const rootPath = path.join(
     __dirname,
     "..",
@@ -19,7 +17,6 @@ export const media: Handler = tryCatch(async (req, res) => {
     "public",
     "upload",
     "medias"
-    // upload.filename
   );
 
   res.sendFile(upload.filename, { root: rootPath });

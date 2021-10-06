@@ -1,8 +1,8 @@
 Arguments: 
-  /home/dady/.nvm/versions/node/v14.17.3/bin/node /home/dady/.nvm/versions/node/v14.17.3/bin/yarn add nono_id
+  /home/dady/.nvm/versions/node/v14.17.3/bin/node /home/dady/.nvm/versions/node/v14.17.3/bin/yarn add expres-jwt jsonwebtoken
 
 PATH: 
-  /home/dady/.nvm/versions/node/v14.17.3/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl:/home/dady/.yarn/bin:/home/dady/.local/bin:/home/dady/Android/Sdk:/home/dady/Android/Sdk/platform-tools:/home/dady/Android/Sdk/tools:/home/dady/Android/Sdk/tools/bin:/home/dady/Android/Sdk/build-tools:/home/dady/Android/Sdk/emulator:/home/dady/.yarn/bin:/home/dady/.local/bin:/home/dady/Android/Sdk:/home/dady/Android/Sdk/platform-tools:/home/dady/Android/Sdk/tools:/home/dady/Android/Sdk/tools/bin:/home/dady/Android/Sdk/build-tools:/home/dady/Android/Sdk/emulator
+  /home/dady/.nvm/versions/node/v14.17.3/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl:/home/dady/.yarn/bin:/home/dady/.local/bin:/home/dady/Android/Sdk:/home/dady/Android/Sdk/platform-tools:/home/dady/Android/Sdk/tools:/home/dady/Android/Sdk/tools/bin:/home/dady/Android/Sdk/build-tools:/home/dady/Android/Sdk/emulator
 
 Yarn version: 
   1.22.11
@@ -14,7 +14,7 @@ Platform:
   linux x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/nono_id: Not found
+  Error: https://registry.yarnpkg.com/expres-jwt: Not found
       at Request.params.callback [as _callback] (/home/dady/.nvm/versions/node/v14.17.3/lib/node_modules/yarn/lib/cli.js:66992:18)
       at Request.self.callback (/home/dady/.nvm/versions/node/v14.17.3/lib/node_modules/yarn/lib/cli.js:140763:22)
       at Request.emit (events.js:375:28)
@@ -34,16 +34,14 @@ npm manifest:
     "author": "Hello Jonas <hellojonashp@gmail.com>",
     "license": "MIT",
     "dependencies": {
-      "@types/cors": "^2.8.12",
-      "@types/helmet": "^4.0.0",
-      "@types/multer": "^1.4.7",
-      "@types/pg": "^8.6.1",
+      "bcryptjs": "^2.4.3",
       "cors": "^2.8.5",
       "dotenv": "^10.0.0",
       "express": "^4.17.1",
       "helmet": "^4.6.0",
       "morgan": "^1.10.0",
       "multer": "^1.4.3",
+      "nanoid": "^3.1.25",
       "pg": "^8.7.1",
       "reflect-metadata": "^0.1.13",
       "sharp": "^0.29.1",
@@ -51,6 +49,11 @@ npm manifest:
       "yup": "^0.32.9"
     },
     "devDependencies": {
+      "@types/cors": "^2.8.12",
+      "@types/helmet": "^4.0.0",
+      "@types/multer": "^1.4.7",
+      "@types/pg": "^8.6.1",
+      "@types/bcryptjs": "^2.4.2",
       "@types/express": "^4.17.13",
       "@types/morgan": "^1.9.3",
       "@types/node": "^16.9.1",
@@ -128,6 +131,11 @@ Lockfile:
     version "1.0.2"
     resolved "https://registry.yarnpkg.com/@tsconfig/node16/-/node16-1.0.2.tgz#423c77877d0569db20e1fc80885ac4118314010e"
     integrity sha512-eZxlbI8GZscaGS7kkc/trHTT5xgrjH3/1n2JDwusC9iahPKWMRvRjJSAN5mCXviuTGQ/lHnhvv8Q1YTpnfz9gA==
+  
+  "@types/bcryptjs@^2.4.2":
+    version "2.4.2"
+    resolved "https://registry.yarnpkg.com/@types/bcryptjs/-/bcryptjs-2.4.2.tgz#e3530eac9dd136bfdfb0e43df2c4c5ce1f77dfae"
+    integrity sha512-LiMQ6EOPob/4yUL66SZzu6Yh77cbzJFYll+ZfaPiPPFswtIlA/Fs1MzdKYA7JApHU49zQTbJGX3PDmCpIdDBRQ==
   
   "@types/body-parser@*":
     version "1.19.1"
@@ -372,6 +380,11 @@ Lockfile:
     integrity sha512-NF+epuEdnUYVlGuhaxbbq+dvJttwLnGY+YixlXlME5KpQ5W3CnXA5cVTneY3SPbPDRkcjMbifrwmFYcClgOZeg==
     dependencies:
       safe-buffer "5.1.2"
+  
+  bcryptjs@^2.4.3:
+    version "2.4.3"
+    resolved "https://registry.yarnpkg.com/bcryptjs/-/bcryptjs-2.4.3.tgz#9ab5627b93e60621ff7cdac5da9733027df1d0cb"
+    integrity sha1-mrVie5PmBiH/fNrF2pczAn3x0Ms=
   
   binary-extensions@^2.0.0:
     version "2.2.0"
@@ -1432,6 +1445,11 @@ Lockfile:
     version "0.2.1"
     resolved "https://registry.yarnpkg.com/nanoclone/-/nanoclone-0.2.1.tgz#dd4090f8f1a110d26bb32c49ed2f5b9235209ed4"
     integrity sha512-wynEP02LmIbLpcYw8uBKpcfF6dmg2vcpKqxeH5UcoKEYdExslsdUA4ugFauuaeYdTB76ez6gJW8XAZ6CgkXYxA==
+  
+  nanoid@^3.1.25:
+    version "3.1.25"
+    resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.25.tgz#09ca32747c0e543f0e1814b7d3793477f9c8e152"
+    integrity sha512-rdwtIXaXCLFAQbnfqDRnI6jaRHp9fTcYBjtFKE8eezcZ7LuLjhUaQGNeMXf1HmRoCH32CLz6XwX0TtxEOS/A3Q==
   
   napi-build-utils@^1.0.1:
     version "1.0.2"

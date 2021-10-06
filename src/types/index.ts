@@ -20,3 +20,9 @@ export interface IUploadInput {
 }
 
 export type MulterFile = Express.Multer.File;
+
+export interface IUserInput {
+  name: string;
+  email: string;
+  password: string;
+}

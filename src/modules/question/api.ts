@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { authController } from "../auth";
 import {
   addQuestion,
   allQuestions,
@@ -12,13 +13,17 @@ const router = Router();
 
 router.get("/", allQuestions);
 
-router.post("/", addQuestion); // Admin only
+router.post("/", authController.isAuth, addQuestion); // Admin only
 
 router.get("/random", random);
 
 router.get("/:id", getQuestion);
 
 // Admin Area
-router.route("/:id").delete(removeQuestion).patch(updateQuestion);
+router
+  .route("/:id")
+  .all(authController.isAuth)
+  .delete(removeQuestion)
+  .patch(updateQuestion);
 
 export default router;
